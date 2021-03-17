@@ -13,6 +13,9 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="src/Graphics" />
+					<Add directory="src/Play" />
+					<Add directory="src/Scene" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -22,6 +25,9 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="src/Graphics" />
+					<Add directory="src/Play" />
+					<Add directory="src/Scene" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -46,6 +52,14 @@
 			<Add after="XCOPY $(#sdl2)\bin\*.dll $(TARGET_OUTPUT_DIR) /D /Y" />
 		</ExtraCommands>
 		<Unit filename="main.cpp" />
+		<Unit filename="src/Graphics/Graphics.cpp" />
+		<Unit filename="src/Graphics/Graphics.h" />
+		<Unit filename="src/Play/Play.cpp" />
+		<Unit filename="src/Play/Play.h" />
+		<Unit filename="src/Scene/Game.cpp" />
+		<Unit filename="src/Scene/Game.h" />
+		<Unit filename="src/Scene/Scene.cpp" />
+		<Unit filename="src/Scene/Scene.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
