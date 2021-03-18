@@ -748,7 +748,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1615997266 source:e:\c++\sdl\matchingexpression\main.cpp
+1616070514 source:e:\c++\sdl\matchingexpression\main.cpp
 	"Scene.h"
 
 1608572791 e:\c++\sdl\sdl2-2.0.14\i686-w64-mingw32\include\sdl2\sdl.h
@@ -1120,47 +1120,49 @@
 	"begin_code.h"
 	"close_code.h"
 
-1616039589 e:\c++\sdl\matchingexpression\src\scene\scene.h
+1616072041 e:\c++\sdl\matchingexpression\src\scene\scene.h
 	<SDL2/SDL.h>
 	<SDL2/SDL_ttf.h>
 	<time.h>
 	<iostream>
 
-1616041500 source:e:\c++\sdl\matchingexpression\src\graphics\graphics.cpp
+1616070762 source:e:\c++\sdl\matchingexpression\src\graphics\graphics.cpp
 	"Graphics.h"
 
-1615997484 e:\c++\sdl\matchingexpression\src\graphics\graphics.h
+1616070758 e:\c++\sdl\matchingexpression\src\graphics\graphics.h
 	"Scene.h"
 
-1615997464 source:e:\c++\sdl\matchingexpression\src\play\play.cpp
+1616078298 source:e:\c++\sdl\matchingexpression\src\play\play.cpp
 	"Play.h"
 	"Game.h"
 
-1615997487 e:\c++\sdl\matchingexpression\src\play\play.h
+1616073083 e:\c++\sdl\matchingexpression\src\play\play.h
 
-1616042321 e:\c++\sdl\matchingexpression\src\scene\game.h
+1616077901 e:\c++\sdl\matchingexpression\src\scene\game.h
 	"Scene.h"
 	<iostream>
 	<vector>
 	<deque>
 	<time.h>
 
-1616043173 source:e:\c++\sdl\matchingexpression\src\scene\game.cpp
+1616078272 source:e:\c++\sdl\matchingexpression\src\scene\game.cpp
 	"Game.h"
 	"Graphics.h"
 	"Play.h"
 	"Text.h"
 	<string>
+	<math.h>
+	<algorithm>
 
-1616039558 source:e:\c++\sdl\matchingexpression\src\scene\scene.cpp
+1616070675 source:e:\c++\sdl\matchingexpression\src\scene\scene.cpp
 	"Scene.h"
 	"Game.h"
 
-1616041812 source:e:\c++\sdl\matchingexpression\src\graphics\text.cpp
+1616071592 source:e:\c++\sdl\matchingexpression\src\graphics\text.cpp
 	"Text.h"
 	<string.h>
 
-1616041662 e:\c++\sdl\matchingexpression\src\graphics\text.h
+1616070789 e:\c++\sdl\matchingexpression\src\graphics\text.h
 	<SDL2/SDL_ttf.h>
 	"Scene.h"
 

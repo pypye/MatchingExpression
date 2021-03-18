@@ -4,11 +4,10 @@
 #include "Scene.h"
 class Text
 {
-    static Text *_instance;
 public:
     Text();
     virtual ~Text();
-    static Text *getInstance(){return _instance = (_instance != nullptr) ? _instance : new Text();}
+    static Text& getInstance(){static Text instance;return instance;}
     SDL_Text loadText(const char *textField, const char* fontType, SDL_Color textColor, int fontSize, int posX, int posY);
 };
 

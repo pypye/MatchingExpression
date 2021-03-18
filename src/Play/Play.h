@@ -3,14 +3,15 @@
 
 class Play
 {
-    static Play *_instance;
 public:
     Play();
     virtual ~Play();
-    static Play *getInstance(){return _instance = (_instance != nullptr) ? _instance : new Play();}
+    static Play& getInstance(){static Play instance;return instance;}
+    bool pressedDown = false;
 
     void spawnTile();
     void relocateTile(int x, int y);
+    void findLowestAndGo();
     bool checkPoint();
     void gravityFall();
     void addNumberToBlock();

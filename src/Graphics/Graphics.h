@@ -4,11 +4,10 @@
 
 class Graphics
 {
-    static Graphics *_instance;
 public:
     Graphics();
     virtual ~Graphics();
-    static Graphics *getInstance(){return _instance = (_instance != nullptr) ? _instance : new Graphics();}
+    static Graphics& getInstance(){static Graphics instance;return instance;}
 
     SDL_BMP loadTile(const char *path, int posX, int posY, int number);
     SDL_BMP loadTexture(const char *path, int posX, int posY);

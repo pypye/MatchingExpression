@@ -2,7 +2,7 @@
 #include "Game.h"
 Scene::Scene(){}
 Scene::~Scene(){}
-Scene *Scene::_instance = NULL;
+
 void Scene::Initialize()
 {
     SDL_Init(SDL_INIT_VIDEO);
@@ -14,13 +14,13 @@ void Scene::Initialize()
 
 void Scene::gameScene()
 {
-    if(Game::getInstance()->readyInit){
-        Game::getInstance()->Init();
-        Game::getInstance()->readyInit = false;
+    if(Game::getInstance().readyInit){
+        Game::getInstance().Init();
+        Game::getInstance().readyInit = false;
     }
-    Game::getInstance()->Event();
-    Game::getInstance()->Update();
-    Game::getInstance()->Draw();
+    Game::getInstance().Event();
+    Game::getInstance().Update();
+    Game::getInstance().Draw();
 }
 
 void Scene::menuScene()

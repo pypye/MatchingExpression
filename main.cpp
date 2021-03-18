@@ -1,11 +1,11 @@
 #include "Scene.h"
 bool gameRunning(){
-    switch(Scene::getInstance()->MODE){
+    switch(Scene::getInstance().MODE){
         case 1:
-            Scene::getInstance()->gameScene();
+            Scene::getInstance().gameScene();
             break;
         case 2:
-            Scene::getInstance()->menuScene();
+            Scene::getInstance().menuScene();
             break;
         default: return 0;
     }
@@ -13,7 +13,7 @@ bool gameRunning(){
 }
 int main(int argc, char* argv[])
 {
-    Scene::getInstance()->Initialize();
+    Scene::getInstance().Initialize();
     while(gameRunning());
     return 0;
 }

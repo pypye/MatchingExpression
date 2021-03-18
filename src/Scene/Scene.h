@@ -15,14 +15,13 @@ struct SDL_Text{
 };
 class Scene
 {
-    static Scene *_instance;
     SDL_Window *_window;
     SDL_Renderer *_renderer;
 public:
     Scene();
     virtual ~Scene();
 
-    static Scene *getInstance(){return _instance = (_instance != NULL) ? _instance : new Scene();}
+    static Scene& getInstance(){static Scene instance;return instance;} ///access public from other class
     inline SDL_Renderer *getRenderer(){return _renderer;}
 
     int MODE = 1;
