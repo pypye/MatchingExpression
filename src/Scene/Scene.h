@@ -1,13 +1,18 @@
 #ifndef SCENE_H
 #define SCENE_H
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <time.h>
 #include <iostream>
+
 struct SDL_BMP{
     SDL_Texture *texture;
     SDL_Rect sourceRect, destinationRect;
 };
-
+struct SDL_Text{
+    SDL_Texture *texture;
+    SDL_Rect destinationRect;
+};
 class Scene
 {
     static Scene *_instance;

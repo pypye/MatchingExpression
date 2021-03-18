@@ -5,6 +5,8 @@ Scene::~Scene(){}
 Scene *Scene::_instance = NULL;
 void Scene::Initialize()
 {
+    SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
     _window = SDL_CreateWindow("Matching Expression", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 720, 720, SDL_WINDOW_SHOWN);
     _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_PRESENTVSYNC);
     SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255);

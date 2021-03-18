@@ -54,6 +54,8 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="src/Graphics/Graphics.cpp" />
 		<Unit filename="src/Graphics/Graphics.h" />
+		<Unit filename="src/Graphics/Text.cpp" />
+		<Unit filename="src/Graphics/Text.h" />
 		<Unit filename="src/Play/Play.cpp" />
 		<Unit filename="src/Play/Play.h" />
 		<Unit filename="src/Scene/Game.cpp" />
