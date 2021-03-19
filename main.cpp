@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "Game.h"
 bool gameRunning(){
     switch(Scene::getInstance().MODE){
         case 1:
@@ -13,7 +14,9 @@ bool gameRunning(){
 }
 int main(int argc, char* argv[])
 {
+
     Scene::getInstance().Initialize();
+    Scene::getInstance().InitUI();
     while(gameRunning());
     return 0;
 }

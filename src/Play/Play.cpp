@@ -1,16 +1,14 @@
 #include "Play.h"
 #include "Game.h"
-
 Play::Play(){}
 Play::~Play(){}
 #define p Game::getInstance()
 void Play::spawnTile(){
     srand(time(NULL));
-
     p.spawnTileX = p.randInt(0, 6), p.spawnTileY = 0;
     for(int i = 0, j = 0; i < 7; ++i)
         if(p.board[i][j]){
-            Scene::getInstance().MODE = 0;
+            p.gameOver = 1;
             return;
         }
     p.board[p.spawnTileX][p.spawnTileY] = p.spawnQueue.front(); p.spawnQueue.pop_front();
@@ -34,7 +32,6 @@ void Play::findLowestAndGo()
             break;
         }
 }
-
 bool Play::checkPoint(){
     int check[7][10];
     bool isGetPoint = 0;
@@ -77,8 +74,7 @@ void Play::addNumberToBlock(){
     if(p.expressionData[expression][0] == '+') p.board[p.spawnTileX][p.spawnTileY+1] += (p.expressionData[expression][1] - '0');
     if(p.expressionData[expression][0] == '-') p.board[p.spawnTileX][p.spawnTileY+1] -= (p.expressionData[expression][1] - '0');
     if(p.expressionData[expression][0] == '*') p.board[p.spawnTileX][p.spawnTileY+1] *= (p.expressionData[expression][1] - '0');
-    if(p.expressionData[expression][0] == '/') p.board[p.spawnTileX][p
-        .spawnTileY+1] /= (p.expressionData[expression][1] - '0');
+    if(p.expressionData[expression][0] == '/') p.board[p.spawnTileX][p.spawnTileY+1] /= (p.expressionData[expression][1] - '0');
     if(p.expressionData[expression][0] == '%') p.board[p.spawnTileX][p.spawnTileY+1] %= (p.expressionData[expression][1] - '0');
     if(p.board[p.spawnTileX][p.spawnTileY+1] < 0) p.board[p.spawnTileX][p.spawnTileY+1] = 0;
     p.board[p.spawnTileX][p.spawnTileY] = 0;

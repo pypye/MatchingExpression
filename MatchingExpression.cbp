@@ -9,13 +9,16 @@
 			<Target title="Debug">
 				<Option output="bin/Debug/MatchingExpression" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
-				<Option type="1" />
+				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=c++1z" />
 					<Add option="-g" />
 					<Add directory="src/Graphics" />
 					<Add directory="src/Play" />
 					<Add directory="src/Scene" />
+					<Add directory="src/Button" />
+					<Add directory="src/Menu" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -25,9 +28,12 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-std=c++1z" />
 					<Add directory="src/Graphics" />
 					<Add directory="src/Play" />
 					<Add directory="src/Scene" />
+					<Add directory="src/Button" />
+					<Add directory="src/Menu" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -58,10 +64,14 @@
 			<Add after="XCOPY $(#sdl2)\bin\*.dll $(TARGET_OUTPUT_DIR) /D /Y" />
 		</ExtraCommands>
 		<Unit filename="main.cpp" />
+		<Unit filename="src/Button/Button.cpp" />
+		<Unit filename="src/Button/Button.h" />
 		<Unit filename="src/Graphics/Graphics.cpp" />
 		<Unit filename="src/Graphics/Graphics.h" />
 		<Unit filename="src/Graphics/Text.cpp" />
 		<Unit filename="src/Graphics/Text.h" />
+		<Unit filename="src/Menu/Menu.cpp" />
+		<Unit filename="src/Menu/Menu.h" />
 		<Unit filename="src/Play/Play.cpp" />
 		<Unit filename="src/Play/Play.h" />
 		<Unit filename="src/Scene/Game.cpp" />

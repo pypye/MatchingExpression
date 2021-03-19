@@ -2,6 +2,7 @@
 #include "Graphics.h"
 #include "Play.h"
 #include "Text.h"
+#include "Button.h"
 #include <string>
 #include <math.h>
 #include <algorithm>
@@ -19,41 +20,30 @@ std::string separated(int number){
     return sepNum;
 }
 ///if texture load many times, must destroy it in draw;
-void Game::Init()
+
+void Game::InitGamePlay()
 {
     srand(time(NULL));
-    ///init UI
-    boardTexture = Graphics::getInstance().loadTexture("MatchingExpression_data\\images\\background.bmp", paddingGameplay, paddingGameplay);
-    boardOutline = Graphics::getInstance().loadTexture("MatchingExpression_data\\images\\outline.bmp", paddingGameplay, paddingGameplay);
-    for(int i = 0; i < 3; ++i)
-        UITexture[i] = Graphics::getInstance().loadTexture("MatchingExpression_data\\images\\ui.bmp", paddingUI_x, paddingGameplay + (sizeUI_y + marginUI_y) * i);
-
-    UIScore = Text::getInstance().loadText("SCORE", "MatchingExpression_data\\fonts\\segoeuisb.ttf", {255, 255, 255}, 15, 579, 57);
-    UILevel = Text::getInstance().loadText("LEVEL", "MatchingExpression_data\\fonts\\segoeuisb.ttf", {255, 255, 255}, 15, 582, 153);
-    UIRange = Text::getInstance().loadText("MAX VALUE", "MatchingExpression_data\\fonts\\segoeuisb.ttf", {255, 255, 255}, 15, 561, 249);
-    UINext = Text::getInstance().loadText("NEXT BLOCK", "MatchingExpression_data\\fonts\\segoeuisb.ttf", {255, 255, 255}, 15, 558, 344);
-
-    UINextTexture = Graphics::getInstance().loadTexture("MatchingExpression_data\\images\\ui_next.bmp", paddingUI_x, paddingGameplay + (sizeUI_y + marginUI_y) * 3);
-    ///Init Gameplay
-    ///i is column; j is height;
+    score = 0; level = 1; range = 5;
+    speed = 1000; baseScore = 0;
+    spawnTileX = -2, spawnTileY = -2;
+    ///Init Gameplay - i is column; j is height;
+    spawnQueue.clear();
     for(int i = 0; i < 7; ++i)
         for(int j = 0; j < 11; ++j)
             if(j == 10) board[i][j] = -1;
             else board[i][j] = 0;
-    for(int i = 0; i < 3; ++i)
-        spawnQueue.push_back(randInt(1, range));
+    for(int i = 0; i < 3; ++i) spawnQueue.push_back(randInt(1, range));
     Play::getInstance().spawnTile();
-
-
+    lastTick = SDL_GetTicks();
 }
-
 void Game::Event()
 {
     SDL_Event event;
     while(SDL_PollEvent(&event)){
         switch(event.type){///Handle Input
             case SDL_KEYDOWN:{
-                if(isSpawned){
+                if(isSpawned && !gameOver){
                     if(event.key.keysym.sym == SDLK_a && spawnTileX > 0 && board[spawnTileX-1][spawnTileY] == 0 && !Play::getInstance().pressedDown) Play::getInstance().relocateTile(-1, 0);
                     if(event.key.keysym.sym == SDLK_d && spawnTileX < 6 && board[spawnTileX+1][spawnTileY] == 0 && !Play::getInstance().pressedDown) Play::getInstance().relocateTile(1, 0);
                     if(event.key.keysym.sym == SDLK_w && board[spawnTileX][spawnTileY+1] == 0) Play::getInstance().findLowestAndGo();
@@ -61,50 +51,72 @@ void Game::Event()
                 }
                 break;
             }
-            case SDL_KEYUP: break;
-            case SDL_QUIT:
-                Scene::getInstance().MODE = 0;
+            case SDL_MOUSEBUTTONDOWN:{
+                if(gameOver){
+                    if(event.button.button == SDL_BUTTON_LEFT){
+                        if(Button::getInstance().click(playAgain)) gameOver = false, readyInit = true;
+                        else if(Button::getInstance().click(mainMenu)) gameOver = false, readyInit = true, Scene::getInstance().MODE = 2;
+                    }
+                }
                 break;
-            default: break;
+            }
+            case SDL_KEYUP: break;
+            case SDL_QUIT: Scene::getInstance().MODE = 0; break;
         }
     }
 }
-
-void Game::Update()
+void Game::updateGameplay()
 {
-    ///Update Gameplay
-    ///speed 1000 500 250...
-    ///speed /= 2 when over 200 pts (maximum get 14*7+1 = 99 pts < 200)
+    ///speed 1000 500 250... speed /= 2 when over 200 pts (maximum get 14*7+1 = 99 pts < 200)
     if(score / 200 > baseScore){
         speed /= 2, baseScore = score/200, level++;
         if(range < 14) range++;
     }
     ///Move Tile
-    if(isSpawned){
-        if(SDL_GetTicks() - lastTick >= speed){
-            if(board[spawnTileX][spawnTileY+1] == 0) Play::getInstance().relocateTile(0, 1);
-            else{
-                if(board[spawnTileX][spawnTileY] < 0) Play::getInstance().addNumberToBlock();
-                score += 1;
-                isSpawned = 0;
+    if(!gameOver){
+        if(isSpawned){
+            if(SDL_GetTicks() - lastTick >= speed){
+                if(board[spawnTileX][spawnTileY+1] == 0) Play::getInstance().relocateTile(0, 1);
+                else{
+                    if(board[spawnTileX][spawnTileY] < 0) Play::getInstance().addNumberToBlock();
+                    score += 1;
+                    isSpawned = 0;
+                }
+                lastTick = SDL_GetTicks();
             }
-            lastTick = SDL_GetTicks();
+        }
+        else{
+            if(gravity) Play::getInstance().gravityFall(), gravity = 0, SDL_Delay(200);
+            else{
+                if(Play::getInstance().checkPoint()) gravity = 1, SDL_Delay(200);
+                else{
+                    isSpawned = true;
+                    Play::getInstance().spawnTile();
+                    Play::getInstance().pressedDown = false;
+                    SDL_Delay(100), lastTick = SDL_GetTicks();
+                }
+            }
+        }
+    }
+}
+
+void Game::updateUI()
+{
+    ///cursor hand or arrow ?
+    if(gameOver){
+        if(Button::getInstance().click(playAgain) || Button::getInstance().click(mainMenu)){
+            Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+            SDL_SetCursor(Scene::getInstance().cursor);
+        }
+        else{
+            Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+            SDL_SetCursor(Scene::getInstance().cursor);
         }
     }
     else{
-        if(gravity) Play::getInstance().gravityFall(), gravity = 0, SDL_Delay(200);
-        else{
-            if(Play::getInstance().checkPoint()) gravity = 1, SDL_Delay(200);
-            else{
-                isSpawned = true;
-                Play::getInstance().spawnTile();
-                Play::getInstance().pressedDown = false;
-                SDL_Delay(100), lastTick = SDL_GetTicks();
-            }
-        }
-
+        Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+        SDL_SetCursor(Scene::getInstance().cursor);
     }
-    ///update UI
     for(int i = 0, j = 10; i < 7; ++i) board[i][j] = -1;
     for(int i = 0; i < 7; ++i)
         for(int j = 0; j < 10; ++j)
@@ -122,14 +134,15 @@ void Game::Update()
     int cnt = 0;
     for(auto v: spawnQueue){
         int x = log10(v);
-        if(v > 0) spawnQueueDraw[cnt] = Graphics::getInstance().loadTile("MatchingExpression_data\\images\\tiles.bmp", paddingUI_x + marginQueue_x, paddingQueue_y + (marginQueue_y+blockSize)*cnt, v);
-        else spawnQueueDraw[cnt] = Graphics::getInstance().loadTile("MatchingExpression_data\\images\\expressions.bmp", paddingUI_x + marginQueue_x, paddingQueue_y + (marginQueue_y+blockSize)*cnt, abs(v));
-        ///Load text in tile
         if(v > 0){
+            spawnQueueDraw[cnt] = Graphics::getInstance().loadTile("MatchingExpression_data\\images\\tiles.bmp", paddingUI_x + marginQueue_x, paddingQueue_y + (marginQueue_y+blockSize)*cnt, v);
             spawnQueueText[cnt] = Text::getInstance().loadText(separated(v).c_str(), "MatchingExpression_data\\fonts\\segoeuib.ttf", {255, 255, 255}, 30, paddingUI_x + marginQueue_x + paddingTextTileX[x], paddingQueue_y + paddingTextTileY[x] + (marginQueue_y+blockSize)*cnt);
             markSpawnQueueText[cnt] = 1;
         }
-        else markSpawnQueueText[cnt] = 0;
+        else{
+            spawnQueueDraw[cnt] = Graphics::getInstance().loadTile("MatchingExpression_data\\images\\expressions.bmp", paddingUI_x + marginQueue_x, paddingQueue_y + (marginQueue_y+blockSize)*cnt, abs(v));
+            markSpawnQueueText[cnt] = 0;
+        }
         cnt++;
     }
     UIScoreCount = Text::getInstance().loadText(std::to_string(score).c_str(), "MatchingExpression_data\\fonts\\segoeuisb.ttf", {0, 0, 0}, 15, 602-std::to_string(score).length()*4, 96); /// std::to_string(score).length()*4 . center text
@@ -137,46 +150,62 @@ void Game::Update()
     UIRangeCount = Text::getInstance().loadText(std::to_string(range).c_str(), "MatchingExpression_data\\fonts\\segoeuisb.ttf", {0, 0, 0}, 15, 602-std::to_string(range).length()*4, 289);
 
 }
-
+void Game::Update()
+{
+    updateGameplay();
+    updateUI();
+}
+void Game::renderTile(SDL_BMP& texture)///Img update per frame
+{
+    SDL_RenderCopy(Scene::getInstance().getRenderer(), texture.texture, &texture.sourceRect, &texture.destinationRect);
+    SDL_DestroyTexture(texture.texture);
+}
+void Game::renderText(SDL_Text& texture) ///Text update per frame
+{
+    SDL_RenderCopy(Scene::getInstance().getRenderer(), texture.texture, NULL, &texture.destinationRect);
+    SDL_DestroyTexture(texture.texture);
+}
+void Game::renderUIText(SDL_Text& texture)///Text not update per frame
+{
+    SDL_RenderCopy(Scene::getInstance().getRenderer(), texture.texture, NULL, &texture.destinationRect);
+}
+void Game::renderTexture(SDL_BMP& texture)///Img not update per frame
+{
+    SDL_RenderCopy(Scene::getInstance().getRenderer(), texture.texture, NULL, &texture.destinationRect);
+}
 void Game::Draw()
 {
     SDL_RenderClear(Scene::getInstance().getRenderer());
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), boardTexture.texture, NULL, &boardTexture.destinationRect);
-    for(int i = 0; i < 3; ++i) SDL_RenderCopy(Scene::getInstance().getRenderer(), UITexture[i].texture, NULL, &UITexture[i].destinationRect);
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), UINextTexture.texture, NULL, &UINextTexture.destinationRect);
+    renderTexture(boardTexture);
+    for(int i = 0; i < 3; ++i) renderTexture(UITexture[i]);
+    renderTexture(UINextTexture);
     for(int i = 0; i < 7; ++i)
         for(int j = 0; j < 10; ++j)
             if(board[i][j]){
-                SDL_RenderCopy(Scene::getInstance().getRenderer(), tile[i][j].texture, &tile[i][j].sourceRect, &tile[i][j].destinationRect);
-                if(board[i][j] > 0){
-                    SDL_RenderCopy(Scene::getInstance().getRenderer(), tileText[i][j].texture, NULL, &tileText[i][j].destinationRect);
-                    SDL_DestroyTexture(tileText[i][j].texture);
-                }
-                SDL_DestroyTexture(tile[i][j].texture);
+                renderTile(tile[i][j]);
+                if(board[i][j] > 0) renderText(tileText[i][j]);
             }
-
     for(int i = 0; i < 3; ++i){
-        SDL_RenderCopy(Scene::getInstance().getRenderer(), spawnQueueDraw[i].texture, &spawnQueueDraw[i].sourceRect, &spawnQueueDraw[i].destinationRect);
-        SDL_DestroyTexture(spawnQueueDraw[i].texture);
-        if(markSpawnQueueText[i]){
-            SDL_RenderCopy(Scene::getInstance().getRenderer(), spawnQueueText[i].texture, NULL, &spawnQueueText[i].destinationRect);
-            SDL_DestroyTexture(spawnQueueText[i].texture);
-        }
+        renderTile(spawnQueueDraw[i]);
+        if(markSpawnQueueText[i]) renderText(spawnQueueText[i]);
     }
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), boardOutline.texture, NULL, &boardOutline.destinationRect);
-
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), UIScore.texture, NULL, &UIScore.destinationRect);
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), UILevel.texture, NULL, &UILevel.destinationRect);
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), UIRange.texture, NULL, &UIRange.destinationRect);
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), UINext.texture, NULL, &UINext.destinationRect);
-
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), UIScoreCount.texture, NULL, &UIScoreCount.destinationRect);
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), UILevelCount.texture, NULL, &UILevelCount.destinationRect);
-    SDL_RenderCopy(Scene::getInstance().getRenderer(), UIRangeCount.texture, NULL, &UIRangeCount.destinationRect);
-    SDL_DestroyTexture(UIScoreCount.texture);
-    SDL_DestroyTexture(UILevelCount.texture);
-    SDL_DestroyTexture(UIRangeCount.texture);
+    renderTexture(boardOutline);
+    renderUIText(UIScore);
+    renderUIText(UILevel);
+    renderUIText(UIRange);
+    renderUIText(UINext);
+    renderText(UIScoreCount);
+    renderText(UILevelCount);
+    renderText(UIRangeCount);
+    if(gameOver){
+        renderTexture(layerMask);
+        renderTexture(notification); renderUIText(gameOverText);
+        renderTexture(playAgain.btn); renderUIText(playAgain.textbtn);
+        renderTexture(mainMenu.btn); renderUIText(mainMenu.textbtn);
+        ///show score when game over
+        gameOverScore = Text::getInstance().loadText(("Score: " + std::to_string(score)).c_str(), "MatchingExpression_data\\fonts\\segoeuisb.ttf", {0, 0, 0}, 15, 336-std::to_string(range).length()*5, 313);
+        renderText(gameOverScore);
+    }
 
     SDL_RenderPresent(Scene::getInstance().getRenderer());
-
 }

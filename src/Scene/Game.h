@@ -7,11 +7,7 @@
 #include <time.h>
 class Game
 {
-    SDL_BMP boardTexture, boardOutline;
-    SDL_BMP UITexture[3], UINextTexture;
 
-    SDL_Text UIScore, UILevel, UIRange, UINext;
-    SDL_Text UIScoreCount, UILevelCount, UIRangeCount;
     bool gravity = false; ///fall block when get point
     bool isSpawned = true;
     ///Config
@@ -38,20 +34,40 @@ public:
 
     bool readyInit = true;
     SDL_BMP tile[7][11], spawnQueueDraw[3];
+    SDL_BMP boardTexture, boardOutline;
+    SDL_BMP UITexture[3], UINextTexture;
+    SDL_BMP layerMask, notification;
+
     SDL_Text tileText[7][11], spawnQueueText[3];
+    SDL_Text UIScore, UILevel, UIRange, UINext;
+    SDL_Text UIScoreCount, UILevelCount, UIRangeCount;
+    SDL_Text gameOverText;
+    SDL_Text gameOverScore;
+
+    SDL_Button playAgain, mainMenu;
     long long board[7][11];
     int spawnTileX = -2, spawnTileY = -2;
     bool markSpawnQueueText[3];
     std::deque <int> spawnQueue;
-    std::string expressionData[15] = {"", "+1", "-1", "+2", "-2", "*2", "/2", "%2", "+3", "-3", "*3", "/3", "%3", "-4", "?"};
+    std::string expressionData[16] = {"", "+1", "-1", "%1", "+2", "-2", "*2", "/2", "%2", "+3", "-3", "*3", "/3", "%3", "-4", "?"};
     int score = 0;
     int level = 1;
     int range = 5;
+    bool gameOver = 0;
 
-    void Init();
+    void InitUI();
+    void InitGamePlay();
     void Event();
     void Update();
     void Draw();
-};
 
+    void updateGameplay();
+    void updateUI();
+
+    void renderTile(SDL_BMP &texture);
+    void renderText(SDL_Text &texture);
+    void renderUIText(SDL_Text &texture);
+    void renderTexture(SDL_BMP &texture);
+
+};
 #endif // GAME_H
