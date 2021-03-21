@@ -9,6 +9,12 @@ struct SDL_BMP{
     SDL_Texture *texture;
     SDL_Rect sourceRect, destinationRect;
 };
+struct SDL_Animation{
+    SDL_Texture *texture;
+    SDL_Rect sourceRect, destinationRect;
+    int maxcounter, sizeX, sizeY;
+    int counter = 0;
+};
 struct SDL_Text{
     SDL_Texture *texture;
     SDL_Rect destinationRect;
@@ -44,6 +50,7 @@ public:
     void Initialize();
     void gameScene();
     void menuScene();
+    void cleanUp();
 };
 
 #endif // SCENE_H

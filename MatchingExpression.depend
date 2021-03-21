@@ -748,7 +748,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1616169117 source:e:\c++\sdl\matchingexpression\main.cpp
+1616320336 source:e:\c++\sdl\matchingexpression\main.cpp
 	"Scene.h"
 	"Game.h"
 
@@ -1121,7 +1121,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1616168131 e:\c++\sdl\matchingexpression\src\scene\scene.h
+1616322355 e:\c++\sdl\matchingexpression\src\scene\scene.h
 	<SDL2/SDL.h>
 	<SDL2/SDL_ttf.h>
 	<time.h>
@@ -1139,29 +1139,33 @@
 
 1616073083 e:\c++\sdl\matchingexpression\src\play\play.h
 
-1616169346 e:\c++\sdl\matchingexpression\src\scene\game.h
+1616323059 e:\c++\sdl\matchingexpression\src\scene\game.h
 	"Scene.h"
 	<iostream>
 	<vector>
 	<deque>
 	<time.h>
 
-1616169345 source:e:\c++\sdl\matchingexpression\src\scene\game.cpp
+1616323704 source:e:\c++\sdl\matchingexpression\src\scene\game.cpp
 	"Game.h"
 	"Graphics.h"
 	"Play.h"
 	"Text.h"
 	"Button.h"
+	"Audio.h"
+	"Menu.h"
 	<string>
 	<math.h>
 	<algorithm>
 
-1616167720 source:e:\c++\sdl\matchingexpression\src\scene\scene.cpp
+1616323695 source:e:\c++\sdl\matchingexpression\src\scene\scene.cpp
 	"Scene.h"
 	"Game.h"
 	"Graphics.h"
 	"Text.h"
 	"Menu.h"
+	"Audio.h"
+	"Animation.h"
 
 1616071592 source:e:\c++\sdl\matchingexpression\src\graphics\text.cpp
 	"Text.h"
@@ -1187,11 +1191,33 @@
 1616164065 e:\c++\sdl\matchingexpression\src\button\button.h
 	"Scene.h"
 
-1616168292 source:e:\c++\sdl\matchingexpression\src\menu\menu.cpp
+1616323896 source:e:\c++\sdl\matchingexpression\src\menu\menu.cpp
 	"Menu.h"
 	"Game.h"
 	"Button.h"
+	"Animation.h"
 
-1616166642 e:\c++\sdl\matchingexpression\src\menu\menu.h
+1616323673 e:\c++\sdl\matchingexpression\src\menu\menu.h
+	"Scene.h"
+
+1616320698 source:e:\c++\sdl\matchingexpression\src\audio\audio.cpp
+	"Audio.h"
+
+1616316627 e:\c++\sdl\matchingexpression\src\audio\audio.h
+	<SDL2/SDL_mixer.h>
+
+1540997992 e:\c++\sdl\sdl2-2.0.14\i686-w64-mingw32\include\sdl2\sdl_mixer.h
+	"SDL_stdinc.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1616323359 source:e:\c++\sdl\matchingexpression\src\graphics\animation.cpp
+	"Animation.h"
+
+1616322274 e:\c++\sdl\matchingexpression\src\graphics\animation.h
 	"Scene.h"
 

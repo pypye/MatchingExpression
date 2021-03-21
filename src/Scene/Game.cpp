@@ -3,6 +3,8 @@
 #include "Play.h"
 #include "Text.h"
 #include "Button.h"
+#include "Audio.h"
+#include "Menu.h"
 #include <string>
 #include <math.h>
 #include <algorithm>
@@ -24,6 +26,9 @@ std::string separated(int number){
 void Game::InitGamePlay()
 {
     srand(time(NULL));
+    Audio::getInstance().EnableTreble();
+    gameOver = false;
+    gamePaused = false;
     score = 0; level = 1; range = 5;
     speed = 1000; baseScore = 0;
     spawnTileX = -2, spawnTileY = -2;
@@ -43,11 +48,18 @@ void Game::Event()
     while(SDL_PollEvent(&event)){
         switch(event.type){///Handle Input
             case SDL_KEYDOWN:{
-                if(isSpawned && !gameOver){
+                if(isSpawned && !gameOver && !gamePaused){
                     if(event.key.keysym.sym == SDLK_a && spawnTileX > 0 && board[spawnTileX-1][spawnTileY] == 0 && !Play::getInstance().pressedDown) Play::getInstance().relocateTile(-1, 0);
                     if(event.key.keysym.sym == SDLK_d && spawnTileX < 6 && board[spawnTileX+1][spawnTileY] == 0 && !Play::getInstance().pressedDown) Play::getInstance().relocateTile(1, 0);
                     if(event.key.keysym.sym == SDLK_w && board[spawnTileX][spawnTileY+1] == 0) Play::getInstance().findLowestAndGo();
                     if(event.key.keysym.sym == SDLK_s && board[spawnTileX][spawnTileY+1] == 0) Play::getInstance().relocateTile(0, 1);
+                }
+                if(!gameOver){
+                    if(event.key.keysym.sym == SDLK_ESCAPE){
+                        gamePaused = 1 ^ gamePaused;
+                        if(gamePaused) Audio::getInstance().DisableTreble();
+                        else Audio::getInstance().EnableTreble();
+                    }
                 }
                 break;
             }
@@ -55,13 +67,32 @@ void Game::Event()
                 if(gameOver){
                     if(event.button.button == SDL_BUTTON_LEFT){
                         if(Button::getInstance().click(playAgain)) gameOver = false, readyInit = true;
-                        else if(Button::getInstance().click(mainMenu)) gameOver = false, readyInit = true, Scene::getInstance().MODE = 2;
+                        else if(Button::getInstance().click(mainMenu)){
+                            Menu::getInstance().readyInit = true;
+                            Scene::getInstance().MODE = 2;
+                            Audio::getInstance().DisableTreble();
+                        }
+                    }
+                }
+                else if(gamePaused){
+                    if(event.button.button == SDL_BUTTON_LEFT){
+                        if(Button::getInstance().click(Paused_Resume)){
+                            gamePaused = false;
+                            Audio::getInstance().EnableTreble();
+                        }
+                        else if(Button::getInstance().click(Paused_mainMenu)){
+                            Menu::getInstance().readyInit = true;
+                            Scene::getInstance().MODE = 2;
+                            Audio::getInstance().DisableTreble();
+                        }
                     }
                 }
                 break;
             }
             case SDL_KEYUP: break;
-            case SDL_QUIT: Scene::getInstance().MODE = 0; break;
+            case SDL_QUIT:
+                Scene::getInstance().MODE = 0;
+                break;
         }
     }
 }
@@ -73,7 +104,7 @@ void Game::updateGameplay()
         if(range < 14) range++;
     }
     ///Move Tile
-    if(!gameOver){
+    if(!gameOver && !gamePaused){
         if(isSpawned){
             if(SDL_GetTicks() - lastTick >= speed){
                 if(board[spawnTileX][spawnTileY+1] == 0) Play::getInstance().relocateTile(0, 1);
@@ -99,24 +130,24 @@ void Game::updateGameplay()
         }
     }
 }
-
-void Game::updateUI()
-{
+void Game::mouseHoverChange(){
     ///cursor hand or arrow ?
     if(gameOver){
-        if(Button::getInstance().click(playAgain) || Button::getInstance().click(mainMenu)){
+        if(Button::getInstance().click(playAgain) || Button::getInstance().click(mainMenu))
             Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-            SDL_SetCursor(Scene::getInstance().cursor);
-        }
-        else{
-            Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-            SDL_SetCursor(Scene::getInstance().cursor);
-        }
+        else Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
     }
-    else{
-        Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-        SDL_SetCursor(Scene::getInstance().cursor);
+    else if(gamePaused){
+        if(Button::getInstance().click(Paused_Resume) || Button::getInstance().click(Paused_mainMenu))
+            Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+        else Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
     }
+    else Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+    SDL_SetCursor(Scene::getInstance().cursor);
+}
+void Game::updateUI()
+{
+    ///UI
     for(int i = 0, j = 10; i < 7; ++i) board[i][j] = -1;
     for(int i = 0; i < 7; ++i)
         for(int j = 0; j < 10; ++j)
@@ -152,6 +183,7 @@ void Game::updateUI()
 }
 void Game::Update()
 {
+    mouseHoverChange();
     updateGameplay();
     updateUI();
 }
@@ -173,6 +205,10 @@ void Game::renderTexture(SDL_BMP& texture)///Img not update per frame
 {
     SDL_RenderCopy(Scene::getInstance().getRenderer(), texture.texture, NULL, &texture.destinationRect);
 }
+void Game::renderAnimation(SDL_Animation& texture)
+{
+    SDL_RenderCopy(Scene::getInstance().getRenderer(), texture.texture, &texture.sourceRect, &texture.destinationRect);
+}
 void Game::Draw()
 {
     SDL_RenderClear(Scene::getInstance().getRenderer());
@@ -183,11 +219,11 @@ void Game::Draw()
         for(int j = 0; j < 10; ++j)
             if(board[i][j]){
                 renderTile(tile[i][j]);
-                if(board[i][j] > 0) renderText(tileText[i][j]);
+                if(board[i][j] > 0 && !isBlindMode) renderText(tileText[i][j]);
             }
     for(int i = 0; i < 3; ++i){
         renderTile(spawnQueueDraw[i]);
-        if(markSpawnQueueText[i]) renderText(spawnQueueText[i]);
+        if(markSpawnQueueText[i] && !isBlindMode) renderText(spawnQueueText[i]);
     }
     renderTexture(boardOutline);
     renderUIText(UIScore);
@@ -199,13 +235,18 @@ void Game::Draw()
     renderText(UIRangeCount);
     if(gameOver){
         renderTexture(layerMask);
-        renderTexture(notification); renderUIText(gameOverText);
-        renderTexture(playAgain.btn); renderUIText(playAgain.textbtn);
-        renderTexture(mainMenu.btn); renderUIText(mainMenu.textbtn);
+        renderTexture(notification);    renderUIText(gameOverText);
+        renderTexture(playAgain.btn);   renderUIText(playAgain.textbtn);
+        renderTexture(mainMenu.btn);    renderUIText(mainMenu.textbtn);
         ///show score when game over
-        gameOverScore = Text::getInstance().loadText(("Score: " + std::to_string(score)).c_str(), "MatchingExpression_data\\fonts\\segoeuisb.ttf", {0, 0, 0}, 15, 336-std::to_string(range).length()*5, 313);
+        gameOverScore = Text::getInstance().loadText(("Score: " + std::to_string(score)).c_str(), "MatchingExpression_data\\fonts\\segoeuisb.ttf", {0, 0, 0}, 15, 336-std::to_string(range).length()*5, 338);
         renderText(gameOverScore);
     }
-
+    else if(gamePaused){
+        renderTexture(layerMask);
+        renderTexture(gamePausedUI);        renderUIText(gamePausedText);
+        renderTexture(Paused_Resume.btn);   renderUIText(Paused_Resume.textbtn);
+        renderTexture(Paused_mainMenu.btn); renderUIText(Paused_mainMenu.textbtn);
+    }
     SDL_RenderPresent(Scene::getInstance().getRenderer());
 }

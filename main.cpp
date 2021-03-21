@@ -18,5 +18,6 @@ int main(int argc, char* argv[])
     Scene::getInstance().Initialize();
     Scene::getInstance().InitUI();
     while(gameRunning());
+    Scene::getInstance().cleanUp();
     return 0;
 }
