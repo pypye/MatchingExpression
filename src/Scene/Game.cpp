@@ -12,27 +12,25 @@ Game::Game(){}
 Game::~Game(){}
 std::string separated(int number){
     std::string num = std::to_string(number);
-    std::string sepNum = std::string();
+    std::string sep = "";
     int cnt = 3;
-    for(auto i = num.rbegin(); i != num.rend() ; ++i){
-        if(!cnt) sepNum.push_back(','), cnt = 3;
-        if(cnt--) sepNum.push_back(*i);
+    for(auto i = num.rbegin(); i != num.rend(); ++i){
+        if(!cnt) sep.push_back(','), cnt = 3;
+        if(cnt--) sep.push_back(*i);
     }
-    std::reverse(sepNum.begin(), sepNum.end());
-    return sepNum;
+    std::reverse(sep.begin(), sep.end());
+    return sep;
 }
-///if texture load many times, must destroy it in draw;
-
 void Game::InitGamePlay()
 {
     srand(time(NULL));
-    Audio::getInstance().EnableTreble();
+    if(Menu::getInstance().musicEnabled) Audio::getInstance().EnableTreble();
     gameOver = false;
     gamePaused = false;
-    score = 0; level = 1; range = 5;
+    score = 0; level = 1; range = 6;
     speed = 1000; baseScore = 0;
     spawnTileX = -2, spawnTileY = -2;
-    ///Init Gameplay - i is column; j is height;
+    ///Init Gameplay; i is column; j is height;
     spawnQueue.clear();
     for(int i = 0; i < 7; ++i)
         for(int j = 0; j < 11; ++j)
@@ -58,7 +56,9 @@ void Game::Event()
                     if(event.key.keysym.sym == SDLK_ESCAPE){
                         gamePaused = 1 ^ gamePaused;
                         if(gamePaused) Audio::getInstance().DisableTreble();
-                        else Audio::getInstance().EnableTreble();
+                        else if(Menu::getInstance().musicEnabled)
+                            Audio::getInstance().EnableTreble();
+
                     }
                 }
                 break;
@@ -78,7 +78,8 @@ void Game::Event()
                     if(event.button.button == SDL_BUTTON_LEFT){
                         if(Button::getInstance().click(Paused_Resume)){
                             gamePaused = false;
-                            Audio::getInstance().EnableTreble();
+                            if(Menu::getInstance().musicEnabled)
+                                Audio::getInstance().EnableTreble();
                         }
                         else if(Button::getInstance().click(Paused_mainMenu)){
                             Menu::getInstance().readyInit = true;
@@ -101,7 +102,7 @@ void Game::updateGameplay()
     ///speed 1000 500 250... speed /= 2 when over 200 pts (maximum get 14*7+1 = 99 pts < 200)
     if(score / 200 > baseScore){
         speed /= 2, baseScore = score/200, level++;
-        if(range < 14) range++;
+        if(range < 14) range += 2;
     }
     ///Move Tile
     if(!gameOver && !gamePaused){
@@ -132,17 +133,15 @@ void Game::updateGameplay()
 }
 void Game::mouseHoverChange(){
     ///cursor hand or arrow ?
+    Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
     if(gameOver){
-        if(Button::getInstance().click(playAgain) || Button::getInstance().click(mainMenu))
-            Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-        else Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+        Button::getInstance().mouseChange(playAgain);
+        Button::getInstance().mouseChange(mainMenu);
     }
     else if(gamePaused){
-        if(Button::getInstance().click(Paused_Resume) || Button::getInstance().click(Paused_mainMenu))
-            Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-        else Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+        Button::getInstance().mouseChange(Paused_mainMenu);
+        Button::getInstance().mouseChange(Paused_Resume);
     }
-    else Scene::getInstance().cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
     SDL_SetCursor(Scene::getInstance().cursor);
 }
 void Game::updateUI()
@@ -209,6 +208,7 @@ void Game::renderAnimation(SDL_Animation& texture)
 {
     SDL_RenderCopy(Scene::getInstance().getRenderer(), texture.texture, &texture.sourceRect, &texture.destinationRect);
 }
+///if texture load many times, must destroy it in draw;
 void Game::Draw()
 {
     SDL_RenderClear(Scene::getInstance().getRenderer());

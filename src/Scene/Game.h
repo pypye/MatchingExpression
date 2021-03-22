@@ -10,7 +10,7 @@ class Game
     bool gravity = false; ///fall block when get point
     bool isSpawned = true;
     ///Config
-    int speed = 1000;
+    unsigned int speed = 1000;
     int baseScore = 0;
     ///Layout
     int paddingTextTileX[9] = {23, 14, 14, 12, 8, 3, 8, 5, 2};
@@ -56,7 +56,7 @@ public:
 
     int score = 0;
     int level = 1;
-    int range = 5;
+    int range = 6;
     bool gameOver = 0;
     bool gamePaused = 0;
     void InitUI();

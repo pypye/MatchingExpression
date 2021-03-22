@@ -19,6 +19,7 @@
 					<Add directory="src/Scene" />
 					<Add directory="src/Button" />
 					<Add directory="src/Menu" />
+					<Add directory="src/Audio" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -34,6 +35,7 @@
 					<Add directory="src/Scene" />
 					<Add directory="src/Button" />
 					<Add directory="src/Menu" />
+					<Add directory="src/Audio" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -54,7 +56,17 @@
 			<Add library="gdi32" />
 			<Add library="winmm" />
 			<Add library="dxguid" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libFLAC-8.dll" />
 			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libfreetype-6.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libmodplug-1.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libmpg123-0.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libogg-0.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libopus-0.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libopusfile-0.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libvorbis-0.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/libvorbisfile-3.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/SDL2.dll" />
+			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/SDL2_mixer.dll" />
 			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/SDL2_ttf.dll" />
 			<Add library="../SDL2-2.0.14/i686-w64-mingw32/bin/zlib1.dll" />
 			<Add directory="../SDL2-2.0.14/i686-w64-mingw32/lib" />
@@ -64,8 +76,12 @@
 			<Add after="XCOPY $(#sdl2)\bin\*.dll $(TARGET_OUTPUT_DIR) /D /Y" />
 		</ExtraCommands>
 		<Unit filename="main.cpp" />
+		<Unit filename="src/Audio/Audio.cpp" />
+		<Unit filename="src/Audio/Audio.h" />
 		<Unit filename="src/Button/Button.cpp" />
 		<Unit filename="src/Button/Button.h" />
+		<Unit filename="src/Graphics/Animation.cpp" />
+		<Unit filename="src/Graphics/Animation.h" />
 		<Unit filename="src/Graphics/Graphics.cpp" />
 		<Unit filename="src/Graphics/Graphics.h" />
 		<Unit filename="src/Graphics/Text.cpp" />

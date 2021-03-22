@@ -1,14 +1,6 @@
 #include "Animation.h"
-
-Animation::Animation()
-{
-    //ctor
-}
-
-Animation::~Animation()
-{
-    //dtor
-}
+Animation::Animation(){}
+Animation::~Animation(){}
 SDL_Animation Animation::loadAnimation(const char* path, int posX, int posY, int sizeX, int sizeY, int maxcounter)
 {
     SDL_Surface *surface = SDL_LoadBMP(path);
@@ -20,7 +12,6 @@ SDL_Animation Animation::loadAnimation(const char* path, int posX, int posY, int
     SDL_FreeSurface(surface);
     return {texture, renderSourceRect, renderDestinationRect, maxcounter, sizeX, sizeY, 1};
 }
-
 void Animation::trackingAnimation(SDL_Animation& ani)
 {
     ani.counter += 1;
@@ -29,5 +20,4 @@ void Animation::trackingAnimation(SDL_Animation& ani)
         ani.sourceRect.x = 0;
         ani.counter = 0;
     }
-
 }

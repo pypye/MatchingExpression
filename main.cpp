@@ -14,7 +14,6 @@ bool gameRunning(){
 }
 int main(int argc, char* argv[])
 {
-
     Scene::getInstance().Initialize();
     Scene::getInstance().InitUI();
     while(gameRunning());

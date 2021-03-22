@@ -11,8 +11,12 @@ public:
     Mix_Chunk *bassClef = NULL;
     Mix_Chunk *trebleClef = NULL;
     void Init();
+    int loadAudio();
     void EnableTreble();
     void DisableTreble();
+    void EnableBass();
+    void DisableAll();
+    void saveAudioStatus();
     void cleanUp();
 };
 
