@@ -15,8 +15,8 @@ std::string separated(int number){
     std::string sep = "";
     int cnt = 3;
     for(auto i = num.rbegin(); i != num.rend(); ++i){
-        if(!cnt) sep.push_back(','), cnt = 3;
-        if(cnt--) sep.push_back(*i);
+        if(!cnt) sep += ",", cnt = 3;
+        if(cnt--) sep += (*i);
     }
     std::reverse(sep.begin(), sep.end());
     return sep;
@@ -27,11 +27,11 @@ void Game::InitGamePlay()
     if(Menu::getInstance().musicEnabled) Audio::getInstance().EnableTreble();
     gameOver = false;
     gamePaused = false;
-    score = 0; level = 1; range = 6;
-    speed = 1000; baseScore = 0;
+    score = 0; level = 1; range = 8;
+    speed = 1000; baseScore = 200;
     spawnTileX = -2, spawnTileY = -2;
-    ///Init Gameplay; i is column; j is height;
     spawnQueue.clear();
+    ///Init Gameplay; i is column; j is height;
     for(int i = 0; i < 7; ++i)
         for(int j = 0; j < 11; ++j)
             if(j == 10) board[i][j] = -1;
@@ -56,9 +56,7 @@ void Game::Event()
                     if(event.key.keysym.sym == SDLK_ESCAPE){
                         gamePaused = 1 ^ gamePaused;
                         if(gamePaused) Audio::getInstance().DisableTreble();
-                        else if(Menu::getInstance().musicEnabled)
-                            Audio::getInstance().EnableTreble();
-
+                        else if(Menu::getInstance().musicEnabled) Audio::getInstance().EnableTreble();
                     }
                 }
                 break;
@@ -78,8 +76,7 @@ void Game::Event()
                     if(event.button.button == SDL_BUTTON_LEFT){
                         if(Button::getInstance().click(Paused_Resume)){
                             gamePaused = false;
-                            if(Menu::getInstance().musicEnabled)
-                                Audio::getInstance().EnableTreble();
+                            if(Menu::getInstance().musicEnabled) Audio::getInstance().EnableTreble();
                         }
                         else if(Button::getInstance().click(Paused_mainMenu)){
                             Menu::getInstance().readyInit = true;
@@ -99,10 +96,10 @@ void Game::Event()
 }
 void Game::updateGameplay()
 {
-    ///speed 1000 500 250... speed /= 2 when over 200 pts (maximum get 14*7+1 = 99 pts < 200)
-    if(score / 200 > baseScore){
-        speed /= 2, baseScore = score/200, level++;
-        if(range < 14) range += 2;
+    ///speed /= 1.5 when over 400 pts
+    if(score > baseScore){
+        speed /= 1.5, baseScore *= 3, level++;
+        range += 2;
     }
     ///Move Tile
     if(!gameOver && !gamePaused){
@@ -165,8 +162,9 @@ void Game::updateUI()
     for(auto v: spawnQueue){
         int x = log10(v);
         if(v > 0){
-            spawnQueueDraw[cnt] = Graphics::getInstance().loadTile("MatchingExpression_data\\images\\tiles.bmp", paddingUI_x + marginQueue_x, paddingQueue_y + (marginQueue_y+blockSize)*cnt, v);
-            spawnQueueText[cnt] = Text::getInstance().loadText(separated(v).c_str(), "MatchingExpression_data\\fonts\\segoeuib.ttf", {255, 255, 255}, 30, paddingUI_x + marginQueue_x + paddingTextTileX[x], paddingQueue_y + paddingTextTileY[x] + (marginQueue_y+blockSize)*cnt);
+            if(v > 14) spawnQueueDraw[cnt] = Graphics::getInstance().loadTile("MatchingExpression_data\\images\\tiles.bmp", paddingUI_x + marginQueue_x, paddingQueue_y + (marginQueue_y+blockSize)*cnt, 15);
+            else spawnQueueDraw[cnt] = Graphics::getInstance().loadTile("MatchingExpression_data\\images\\tiles.bmp", paddingUI_x + marginQueue_x, paddingQueue_y + (marginQueue_y+blockSize)*cnt, v);
+            spawnQueueText[cnt] = Text::getInstance().loadText(separated(v).c_str(), "MatchingExpression_data\\fonts\\segoeuib.ttf", {255, 255, 255}, fontsizeTextTile[x], paddingUI_x + marginQueue_x + paddingTextTileX[x], paddingQueue_y + paddingTextTileY[x] + (marginQueue_y+blockSize)*cnt);
             markSpawnQueueText[cnt] = 1;
         }
         else{
@@ -220,10 +218,12 @@ void Game::Draw()
             if(board[i][j]){
                 renderTile(tile[i][j]);
                 if(board[i][j] > 0 && !isBlindMode) renderText(tileText[i][j]);
+                else SDL_DestroyTexture(tileText[i][j].texture);
             }
     for(int i = 0; i < 3; ++i){
         renderTile(spawnQueueDraw[i]);
         if(markSpawnQueueText[i] && !isBlindMode) renderText(spawnQueueText[i]);
+        else SDL_DestroyTexture(spawnQueueText[i].texture);
     }
     renderTexture(boardOutline);
     renderUIText(UIScore);

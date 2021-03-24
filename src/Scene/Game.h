@@ -11,7 +11,7 @@ class Game
     bool isSpawned = true;
     ///Config
     unsigned int speed = 1000;
-    int baseScore = 0;
+    int baseScore = 200;
     ///Layout
     int paddingTextTileX[9] = {23, 14, 14, 12, 8, 3, 8, 5, 2};
     int paddingTextTileY[9] = {11, 11, 18, 21, 21, 21, 24, 24, 24};
@@ -52,11 +52,11 @@ public:
     int spawnTileX = -2, spawnTileY = -2;
     bool markSpawnQueueText[3];
     std::deque <int> spawnQueue;
-    std::string expressionData[16] = {"", "+1", "-1", "%1", "+2", "-2", "*2", "/2", "%2", "+3", "-3", "*3", "/3", "%3", "-4", "?"};
+    std::string expressionData[17] = {"", "+1", "+2", "+3", "-1", "*2", "*3", "-2", "/2", "-3", "/3", "%3", "+4", "%2", "*4", "%1", "*5"};
 
     int score = 0;
     int level = 1;
-    int range = 6;
+    int range = 8;
     bool gameOver = 0;
     bool gamePaused = 0;
     void InitUI();

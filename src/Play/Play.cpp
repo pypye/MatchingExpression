@@ -4,7 +4,6 @@ Play::Play(){}
 Play::~Play(){}
 #define p Game::getInstance()
 void Play::spawnTile(){
-    srand(time(NULL));
     p.spawnTileX = p.randInt(0, 6), p.spawnTileY = 0;
     for(int i = 0, j = 0; i < 7; ++i)
         if(p.board[i][j]){
@@ -12,7 +11,7 @@ void Play::spawnTile(){
             return;
         }
     p.board[p.spawnTileX][p.spawnTileY] = p.spawnQueue.front(); p.spawnQueue.pop_front();
-    int x = p.randInt(-p.range, p.range);
+    int x = p.randInt(std::max(-p.range+2, -16), p.range);///-p.range + 2: reduce time spawn expressions(level 1: -6, 8)
     p.spawnQueue.push_back((x != 0) ? x : (x+1));
 }
 void Play::relocateTile(int x, int y){
